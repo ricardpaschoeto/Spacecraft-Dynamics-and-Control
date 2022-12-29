@@ -17,6 +17,11 @@ class attitude_control:
         
         self.omega_br = self.omega_bn - self.omega_rn
         self.sigma_br = np.array([0,0,0])
+
+        if self.sigma_rn.dtype == 'O':
+            self.s_rn_dot = self.sigma_rn_dot()
+        else:
+            self.s_rn_dot = np.array([0,0,0])
         
         # Gain Matrices and Torque
         self.K = K
@@ -43,7 +48,7 @@ class attitude_control:
 
         return m
 
-    def sigma_rn_dot(self, t):
+    def sigma_rn_dot(self):
         
         if self.sigma_rn.dtype != 'O':
             return self.sigma_rn
@@ -53,9 +58,9 @@ class attitude_control:
         s1_dot = diff(self.sigma_rn[1],time)
         s2_dot = diff(self.sigma_rn[2],time)
 
-        sbn = lambdify(time, [s0_dot, s1_dot, s2_dot])(t)
+        sbn = np.array([s0_dot, s1_dot, s2_dot])
         
-        return np.array([sbn[0], sbn[1], sbn[2]], dtype=float)
+        return sbn
 
     def sigma_bn_dot(self):
         
@@ -93,7 +98,11 @@ class attitude_control:
         else:
             sigma_rn = self.sigma_rn
 
-        sigma_rn_dot = self.sigma_rn_dot(t)
+        if self.s_rn_dot.dtype != 'O':
+            sigma_rn_dot = self.s_rn_dot
+        else:
+            sigma_rn_dot = np.array(lambdify(time, list(self.s_rn_dot))(t), dtype=float)
+
         B = self.B(sigma_rn)
         
         return 4 * np.dot(np.linalg.inv(B), sigma_rn_dot)
@@ -233,11 +242,11 @@ s0 = 0.2*sin(f*time)
 s1 = 0.3*cos(f*time)
 s2 = -0.3*sin(f*time)
 
-sigma_rn = np.array([s0, s1, s2])
-#sigma_rn = np.array([0, 0, 0])
+#sigma_rn = np.array([s0, s1, s2])
+sigma_rn = np.array([0, 0, 0])
 sigma_bn = np.array([0.1, 0.2, -0.1])
 omega_bn = np.deg2rad([30, 10,-20]) # rad/sec
 
 sim_time = 120
 ctrl = attitude_control(100, 75, 80, sigma_rn, sigma_bn,omega_bn, 5.0,10.0,np.array([0, 0, 0]))
-ctrl.simulator(sim_time, 0.01, 40)
+ctrl.simulator(sim_time, 0.01, 30)
