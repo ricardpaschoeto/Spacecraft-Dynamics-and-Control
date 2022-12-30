@@ -28,7 +28,7 @@ I3 = 80 # kg m^2
 I = np.array([[I1, 0, 0], [0, I2, 0],[0, 0, I3]])
 #DL = np.array([0.5,-0.3,0.2]).T
 DL = np.array([0,0,0]).T
-L = np.array([0,0,0]).T
+L = np.array([0.5, -0.3, 0.2]).T
 
 return_0 = False
 
@@ -133,7 +133,7 @@ def control(t, dt, mrp, w):
     # -K*mrp_br - P * w_br + I * (w_rn_dot - w_bn X w_rn) + w_bn X Iw_bn
     u = -K * sigma_b_r - np.dot(P, w_b_r) + np.dot(I, w_r_n_dot_body_frame - np.cross(w, w_r_n_body_frame)) + np.cross(w, np.dot(I, w)) - L
     #u = -K * sigma_b_r - np.dot(P, w_b_r) + np.dot(I, w_r_n_dot_body_frame - np.cross(w, w_r_n_body_frame)) + np.cross(w, np.dot(I, w)) - np.dot(np.dot(P, Ki),z) - L
-    #u = -K * mrp - np.dot(P, w) + np.cross(w, np.dot(I, w))
+    #u = -K * sigma_b_r - np.dot(P, w_b_r) 
     #if linalg.norm(u) >= 1:
         #u = u*np.sign(w)
 
@@ -156,7 +156,7 @@ def sigma_integral(t, sigma_b_r):
 
 h = 0.01
 time = 120
-t_target = 40
+t_target = 70
 
 tvec = np.linspace(0, time, int(time/h + 1))
 t_target_vec = int(t_target/h + 1)
