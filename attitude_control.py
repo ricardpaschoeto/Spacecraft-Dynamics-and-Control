@@ -3,9 +3,13 @@ import matplotlib.pyplot as plt
 from sympy import *
 from scipy.spatial.transform import Rotation as R
 
-class attitude_control:
-    def __init__(self, I1, I2, I3, sigma_rn, sigma_bn, omega_bn, K, P, L):
+time = symbols('time')
+class Attitude_Control:
+    def __init__(self, controller, I1, I2, I3, sigma_rn, sigma_bn, omega_bn, K, P, L):
         
+        # Controller type
+        self.controller = controller
+
         # Principal Inertias
         self.I = np.diag([I1, I2, I3])
 
@@ -116,14 +120,6 @@ class attitude_control:
 
     def omega_bn_dot(self, t, dt):
 
-        #u = self.u(t,dt)
-        u = self.u_proportional(t)
-        omega_bn_dot =  np.dot(np.linalg.inv(self.I) ,(-np.cross(self.omega_bn, np.dot(self.I , self.omega_bn)) + u + self.L))
-
-        return omega_bn_dot
-
-    def u(self, t, dt):
-
         if self.sigma_rn.dtype == 'O':
             sigma_rn = np.array(lambdify(time, list(self.sigma_rn))(t), dtype=float)            
         else:
@@ -140,29 +136,11 @@ class attitude_control:
         omega_rn_dot_bf = np.dot(BR, omega_rn_dot)
         omega_br = self.omega_bn - omega_rn_bf
 
-        control = -self.K * self.sigma_br - np.dot(self.P, omega_br) + np.dot(self.I, omega_rn_dot_bf - np.cross(self.omega_bn, omega_rn_bf)) + np.cross(self.omega_bn, np.dot(self.I, self.omega_bn)) - self.L
+        u = self.controller.control(self.K, self.P, self.L, self.I, self.sigma_br, omega_br, self.omega_bn, omega_rn_bf, omega_rn_dot_bf)
 
-        return control
+        omega_bn_dot =  np.dot(np.linalg.inv(self.I) ,(-np.cross(self.omega_bn, np.dot(self.I , self.omega_bn)) + u + self.L))
 
-    def u_proportional(self, t):
-
-        if self.sigma_rn.dtype == 'O':
-            sigma_rn = np.array(lambdify(time, list(self.sigma_rn))(t), dtype=float)            
-        else:
-            sigma_rn = self.sigma_rn
-    
-        self.sigma_br = -R.from_matrix(np.dot(R.from_mrp(self.sigma_bn).as_matrix().T, R.from_mrp(sigma_rn).as_matrix())).as_mrp()
-
-        self.omega_rn = self.omg_rn(t)
-
-        BR = R.from_mrp(self.sigma_br).as_matrix().T
-
-        omega_rn_bf = np.dot(BR, self.omega_rn)
-        omega_br = self.omega_bn - omega_rn_bf
-
-        control = -self.K * self.sigma_br - np.dot(self.P, omega_br)
-
-        return control
+        return omega_bn_dot
 
     def simulator(self, sim_time, dt, t_target):
 
@@ -253,22 +231,4 @@ class attitude_control:
         axs[1,1].grid()
 
         plt.show()
-        
-###########################################################
-time = symbols('time')
 
-f = 0.05
-s0 = 0.2*sin(f*time)
-s1 = 0.3*cos(f*time)
-s2 = -0.3*sin(f*time)
-
-sigma_rn0 = np.array([0, 0, 0])
-sigma_rn1 = np.array([s0, s1, s2])
-sigma_bn = np.array([0.1, 0.2, -0.1])
-omega_bn = np.deg2rad([30, 10,-20]) # rad/sec
-L0 = np.array([0, 0, 0])
-L1 = np.array([0.5, -0.3, 0.2])
-
-sim_time = 120
-ctrl = attitude_control(100, 75, 80, sigma_rn1, sigma_bn,omega_bn, 5.0,10.0,L0)
-ctrl.simulator(sim_time, 0.01, 20)
