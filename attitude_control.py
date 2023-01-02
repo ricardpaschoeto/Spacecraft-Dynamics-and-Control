@@ -5,7 +5,7 @@ from scipy.spatial.transform import Rotation as R
 
 time = symbols('time')
 class Attitude_Control:
-    def __init__(self, controller, I1, I2, I3, sigma_rn, sigma_bn, omega_bn, K, P, L):
+    def __init__(self, controller, I1, I2, I3, sigma_rn, sigma_bn, omega_bn, K, P, L, delta_L):
         
         # Controller type
         self.controller = controller
@@ -29,8 +29,12 @@ class Attitude_Control:
         
         # Gain Matrices and Torque
         self.K = K
-        self.P = P * np.eye(3)
+        if isinstance(P, np.ndarray):
+            self.P = np.diag(P)
+        else:
+            self.P = P * np.eye(3)
         self.L = L
+        self.delta_L = delta_L
 
         # Errors List
         self.omega_br_list = []
@@ -136,9 +140,9 @@ class Attitude_Control:
         omega_rn_dot_bf = np.dot(BR, omega_rn_dot)
         omega_br = self.omega_bn - omega_rn_bf
 
-        u = self.controller.control(self.K, self.P, self.L, self.I, self.sigma_br, omega_br, self.omega_bn, omega_rn_bf, omega_rn_dot_bf)
+        u = self.controller.control(self.K, self.P, self.L, self.I, self.sigma_br, omega_br, self.omega_bn, omega_rn_bf, omega_rn_dot_bf, t, dt)
 
-        omega_bn_dot =  np.dot(np.linalg.inv(self.I) ,(-np.cross(self.omega_bn, np.dot(self.I , self.omega_bn)) + u + self.L))
+        omega_bn_dot =  np.dot(np.linalg.inv(self.I) ,(-np.cross(self.omega_bn, np.dot(self.I , self.omega_bn)) + u + self.L + self.delta_L))
 
         return omega_bn_dot
 
@@ -197,6 +201,7 @@ class Attitude_Control:
         
         error_norm = [np.sqrt(i**2 + j**2 + k**2) for i, j, k in self.sigma_br_list]
         print("Norm sigma_br at ", t_target, "s: ", error_norm[t_target_vec])
+        print("Steady State error sigma_ss at ", tvec[-1], "s: ", np.round(self.sigma_br_list[-1], 2))
 
         _, axs = plt.subplots(2,2)
         axs[0,0].plot(tvec, self.sigma_bn_list[:, 0], 'g')
