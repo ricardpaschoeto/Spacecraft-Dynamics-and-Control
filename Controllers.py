@@ -50,7 +50,8 @@ class Saturated_Controller(Controllers):
 
         u = (-K * sigma_br - np.dot(P, omega_br) + np.dot(I, omega_rn_dot_bf - np.cross(omega_bn, omega_rn_bf)) + np.cross(omega_bn, np.dot(I, omega_bn)) - L)
     
-        if np.linalg.norm(u) < 1.0 :
+        if np.abs(u).all() < 1.0 :
             return u
-        
-        return 1.0
+        else:
+            return np.clip(np.abs(u), None, 1.0)
+ 
