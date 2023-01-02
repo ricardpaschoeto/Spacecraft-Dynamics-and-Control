@@ -33,6 +33,7 @@ class Attitude_Control:
             self.P = np.diag(P)
         else:
             self.P = P * np.eye(3)
+            
         self.L = L
         self.delta_L = delta_L
 
