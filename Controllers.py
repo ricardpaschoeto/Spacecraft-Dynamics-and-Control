@@ -5,7 +5,6 @@ class Controllers:
     def control(self):
         pass
 
-
 class Full_Controller(Controllers):
 
     def control(self, K, P, L, I, sigma_br, omega_br, omega_bn, omega_rn_bf, omega_rn_dot_bf, t = 0, dt = 0.):
@@ -53,5 +52,5 @@ class Saturated_Controller(Controllers):
         if np.abs(u).all() < 1.0 :
             return u
         else:
-            return np.clip(np.abs(u), None, 1.0)
+            return np.clip(u, -1.0, 1.0)
  
