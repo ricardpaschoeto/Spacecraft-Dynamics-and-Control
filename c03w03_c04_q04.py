@@ -30,6 +30,7 @@ tvec = np.linspace(0, sim_time, int(sim_time/dt))
 controller = Integral_Controller(omega_bn, Ki)
 ctrl = Attitude_Control(controller, 100, 75, 80, sigma_rn, sigma_bn,omega_bn, K,P,L, delta_L)
 ctrl.simulator(sim_time, dt, target)
+
 z_hist = np.array(controller.z_history)
 print("predicted steady state error", z_hist[-1])
 plt.plot(tvec, z_hist[:, 0], 'g')

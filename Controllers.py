@@ -46,13 +46,19 @@ class Gain_Controller(Controllers):
 class Saturated_Controller(Controllers):
     def __init__(self, umax):
         self.umax = umax
+        self.u_history = []
 
     def control(self, K, P, L, I, sigma_br, omega_br, omega_bn, omega_rn_bf, omega_rn_dot_bf, t = 0, dt = 0.):
 
+        u_temp = np.zeros((3,))
         u_uns = (-K * sigma_br - np.dot(P, omega_br) + np.dot(I, omega_rn_dot_bf - np.cross(omega_bn, omega_rn_bf)) + np.cross(omega_bn, np.dot(I, omega_bn)) - L)
     
-        if np.abs(u_uns).all() < self.umax :
-            return u_uns
-        else:
-            return self.umax * np.sign(u_uns)
+        for ii in range(len(u_uns)):
+            if np.abs(u_uns[ii]) <= self.umax[ii]:
+                u_temp[ii] = u_uns[ii]
+            else:
+                u_temp[ii] = self.umax[ii] * np.sign(u_uns[ii]) 
+        self.u_history.append(u_temp)
+
+        return u_temp
  
