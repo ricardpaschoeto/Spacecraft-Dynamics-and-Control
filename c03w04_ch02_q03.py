@@ -3,26 +3,19 @@ import numpy as np
 from Controllers import *
 from Attitude_Control import *
 
-time = symbols('time')
-
-f = 0.05
-s0 = 0.2*sin(f*time)
-s1 = 0.3*cos(f*time)
-s2 = -0.3*sin(f*time)
-
-sigma_rn = np.array([s0, s1, s2])
+sigma_rn = np.array([0, 0, 0])
 sigma_bn = np.array([0.1, 0.2, -0.1])
-omega_bn = np.deg2rad([30, 10,-20]) # rad/sec
+omega_bn = np.deg2rad([3, 1,-2]) # rad/sec
+
+K = 0.11
+P = 3
+
 L = np.array([0, 0, 0])
-delta_L = np.array([0, 0, 0])
-umax = np.array([1., 1., 1.])
+delta_L = np.array([0., 0., 0.])
 
-K = 5
-P = 10
-
-controller = Saturated_Controller(umax)
-sim_time = 180
-target = 60
+controller = CLD_Controller()
+sim_time = 120
+target  = 50
 dt = 0.01
 
 tvec = np.linspace(0, sim_time, int(sim_time/dt))
@@ -39,4 +32,4 @@ plt.legend(["u0", "u1", "u2"], loc='upper right')
 plt.grid()
 plt.show()
 
-# Norm sigma_br at  60 s:  0.520774528734927
+# Norm sigma_br at  50 s:  0.039481477332607144
