@@ -32,7 +32,7 @@ ctrl = Attitude_Control(controller, 100, 75, 80, sigma_rn, sigma_bn,omega_bn, K,
 ctrl.simulator(sim_time, dt, target)
 
 z_hist = np.array(controller.z_history)
-print("predicted steady state error", z_hist[-1])
+print("predicted steady state error", np.round(z_hist[-1]))
 plt.plot(tvec, z_hist[:, 0], 'g')
 plt.plot(tvec, z_hist[:, 1], 'b')
 plt.plot(tvec, z_hist[:, 2], 'r')

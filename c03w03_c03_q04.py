@@ -13,3 +13,5 @@ controller = Full_Controller()
 sim_time = 120
 ctrl = Attitude_Control(controller, 100, 75, 80, sigma_rn, sigma_bn,omega_bn, 5.0,10.0,L, delta_L)
 ctrl.simulator(sim_time, 0.01, 35)
+
+# Norm sigma_br at  35 s:  0.27676093813659053

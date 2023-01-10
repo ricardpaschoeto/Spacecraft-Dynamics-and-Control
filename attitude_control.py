@@ -141,7 +141,7 @@ class Attitude_Control:
         omega_rn_dot_bf = np.dot(BR, omega_rn_dot)
         omega_br = self.omega_bn - omega_rn_bf
 
-        u = self.controller.control(self.K, self.P, self.L, self.I, self.sigma_br, omega_br, self.omega_bn, omega_rn_bf, omega_rn_dot_bf, t, dt)
+        u = self.controller.control(self.K, self.P, self.L, self.I, self.sigma_br, self.sigma_bn, omega_br, self.omega_bn, np.dot(BR, self.omg_rn(0)), self.omega_rn, omega_rn_bf, omega_rn_dot_bf, t, dt)
 
         omega_bn_dot =  np.dot(np.linalg.inv(self.I) ,(-np.cross(self.omega_bn, np.dot(self.I , self.omega_bn)) + u + self.L + self.delta_L))
 

@@ -31,12 +31,12 @@ controller = Integral_Controller(omega_bn, Ki)
 ctrl = Attitude_Control(controller, 100, 75, 80, sigma_rn, sigma_bn,omega_bn, K,P,L, delta_L)
 ctrl.simulator(sim_time, dt, target)
 z_hist = np.array(controller.z_history)
-print("predicted steady state error", z_hist[-1])
+print("predicted steady state error", np.round(z_hist[-1]))
 plt.plot(tvec, z_hist[:, 0], 'g')
 plt.plot(tvec, z_hist[:, 1], 'b')
 plt.plot(tvec, z_hist[:, 2], 'r')
 plt.legend(["z0", "z1", "z2"], loc='upper right')
 plt.show()
 
-# Norm sigma_br at  45 s:  0.01443
-# predicted steady state error [ 9.99987896 -6.00029445  3.99819536]
+# Norm sigma_br at  45 s:  0.01443270164224653
+# predicted steady state error [10. -6.  4.]
