@@ -11,7 +11,7 @@ class Controllers:
 
 class Full_Controller(Controllers):
 
-    def control(self, K, P, L, I, sigma_br, omega_br, omega_bn, omega_rn_bf_0, omega_rn, omega_rn_bf, omega_rn_dot_bf, t, dt):
+    def control(self, K, P, L, I, sigma_br, sigma_bn, omega_br, omega_bn, omega_rn_bf_0, omega_rn, omega_rn_bf, omega_rn_dot_bf, t, dt):
 
         u = (-K * sigma_br - np.dot(P, omega_br) + np.dot(I, omega_rn_dot_bf - np.cross(omega_bn, omega_rn_bf)) + np.cross(omega_bn, np.dot(I, omega_bn)) - L)
         self.u_history.append(u)
@@ -20,7 +20,7 @@ class Full_Controller(Controllers):
 
 class Torqueless_Controller(Controllers):
 
-    def control(self, K, P, L, I, sigma_br, omega_br, omega_bn, omega_rn_bf_0, omega_rn, omega_rn_bf, omega_rn_dot_bf, t, dt):
+    def control(self, K, P, L, I, sigma_br, sigma_bn, omega_br, omega_bn, omega_rn_bf_0, omega_rn, omega_rn_bf, omega_rn_dot_bf, t, dt):
 
         u = (-K * sigma_br - np.dot(P, omega_br) + np.dot(I, omega_rn_dot_bf - np.cross(omega_bn, omega_rn_bf)) + np.cross(omega_bn, np.dot(I, omega_bn)))
         self.u_history.append(u)
@@ -30,7 +30,7 @@ class Torqueless_Controller(Controllers):
 
 class Proportional_Controller(Controllers):
 
-    def control(self, K, P, L, I, sigma_br, omega_br, omega_bn, omega_rn_bf_0, omega_rn, omega_rn_bf, omega_rn_dot_bf, t, dt):
+    def control(self, K, P, L, I, sigma_br, sigma_bn, omega_br, omega_bn, omega_rn_bf_0, omega_rn, omega_rn_bf, omega_rn_dot_bf, t, dt):
         
         u = (-K * sigma_br - np.dot(P, omega_br))
         self.u_history.append(u)
@@ -46,10 +46,10 @@ class Integral_Controller(Controllers):
         self.Ki = Ki
         self.z_history = []
 
-    def control(self, K, P, L, I, sigma_br, omega_br, omega_bn, omega_rn_bf_0, omega_rn, omega_rn_bf, omega_rn_dot_bf, t, dt):
+    def control(self, K, P, L, I, sigma_br, sigma_bn, omega_br, omega_bn, omega_rn_0, omega_rn, omega_rn_bf, omega_rn_dot_bf, t, dt):
 
         self.integral = self.integral + sigma_br * dt
-        z = K * self.integral + np.dot(I, (omega_bn - omega_rn_bf) - (self.omega_bn_0 - omega_rn_bf_0))
+        z = K * self.integral + np.dot(I, (omega_bn - omega_rn_bf) - (self.omega_bn_0 - omega_rn_0))
         self.z_history.append(z)
 
         u = (-K * sigma_br - np.dot(P, omega_br) + np.dot(I, omega_rn_dot_bf - np.cross(omega_bn, omega_rn_bf)) + np.cross(omega_bn, np.dot(I, omega_bn)) - np.dot(P, self.Ki * z))
@@ -59,7 +59,7 @@ class Integral_Controller(Controllers):
 
 class Gain_Controller(Controllers):
 
-    def control(self, K, P, L, I, sigma_br, omega_br, omega_bn, omega_rn_bf_0, omega_rn, omega_rn_bf, omega_rn_dot_bf, t, dt):
+    def control(self, K, P, L, I, sigma_br, sigma_bn, omega_br, omega_bn, omega_rn_bf_0, omega_rn, omega_rn_bf, omega_rn_dot_bf, t, dt):
 
         u = (-K * sigma_br - np.dot(P, omega_br) + np.cross(omega_bn, np.dot(I, omega_bn)) - L)
         self.u_history.append(u)
@@ -72,7 +72,7 @@ class Saturated_Controller(Controllers):
         self.umax = umax
         super().__init__()
 
-    def control(self, K, P, L, I, sigma_br, omega_br, omega_bn, omega_rn_bf_0, omega_rn, omega_rn_bf, omega_rn_dot_bf, t, dt):
+    def control(self, K, P, L, I, sigma_br, sigma_bn, omega_br, omega_bn, omega_rn_bf_0, omega_rn, omega_rn_bf, omega_rn_dot_bf, t, dt):
 
         u_temp = np.zeros((3,))
         u_uns = (-K * sigma_br - np.dot(P, omega_br) + np.dot(I, omega_rn_dot_bf - np.cross(omega_bn, omega_rn_bf)) + np.cross(omega_bn, np.dot(I, omega_bn)) - L)
